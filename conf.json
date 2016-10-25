@@ -1,0 +1,28 @@
+{
+  "local": {
+    "host": "localhost",
+    "port": 9090
+  },
+  "remote": {
+    "host": "https://somehost:9443"
+  },
+  "connection": {
+    "request": {
+      "dropRandomly": false
+    },
+    "response": {
+      "dropRandomly": false,
+      "delay": {
+        "random": {
+          "min": 100,
+          "max": 500
+        },
+        "logNormal": {
+          "mean": 200,
+          "sigma": 20
+        },
+        "fixed": 1000
+      }
+    }
+  }
+}
