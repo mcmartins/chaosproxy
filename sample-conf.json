@@ -1,17 +1,16 @@
 {
   "local": {
-    "host": "localhost",
     "port": 9090
   },
   "remote": {
-    "host": "https://somehost:9443"
+    "host": "https://stage-gap-lux.isoftbet.com:9443"
   },
   "connection": {
     "request": {
-      "dropRandomly": false
+      "dropRandomly": true
     },
     "response": {
-      "dropRandomly": false,
+      "dropRandomly": true,
       "delay": {
         "random": {
           "min": 100,

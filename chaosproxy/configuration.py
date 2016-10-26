@@ -11,22 +11,19 @@ class Configuration:
     @staticmethod
     def __parse(config_file):
         if config_file:
-            logging.info('Parsing configuration...')
+            logging.info('Parsing configuration')
             if os.path.isfile(config_file):
-                config_file = json.loads(open(config_file).read().decode("utf-8"))
+                config_file = json.loads(open(config_file).read().decode('utf-8'))
             else:
                 try:
                     config_file = json.JSONEncoder().encode(json.loads(json.dumps(config_file)))
                 except AttributeError:
                     raise Exception('Input provided is not an existing file or valid JSON string!')
-            logging.debug('Configuration input is: %s', json.dumps(config_file, indent=2))
+            logging.debug('Configuration input is:\n%s', json.dumps(config_file, indent=2))
             return config_file
 
     def get_localhost(self):
-        return (
-            self.configuration.get('local').get('host'),
-            self.configuration.get('local').get('port')
-        )
+        return 'localhost', self.configuration.get('local').get('port')
 
     def get_remotehost(self):
         return self.configuration.get('remote').get('host')

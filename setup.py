@@ -10,7 +10,7 @@ setup(
     author_email='manuelmachadomartins@gmail.com',
     license='Apache 2.0',
     packages=['chaosproxy'],
-    package_data={'chaosproxy': ['conf.json']},
+    package_data={'chaosproxy': ['sample-conf.json']},
     requires=['argparse'],
     install_requires=[
         'argparse'
