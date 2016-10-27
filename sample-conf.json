@@ -3,7 +3,7 @@
     "port": 9090
   },
   "remote": {
-    "host": "https://stage-gap-lux.isoftbet.com:9443"
+    "host": "https://some-remote-host:9443"
   },
   "connection": {
     "request": {

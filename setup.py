@@ -8,7 +8,7 @@ setup(
     url='http://github.com/mcmartins/chaosproxy',
     author='Manuel Martins',
     author_email='manuelmachadomartins@gmail.com',
-    license='Apache 2.0',
+    license='MIT',
     packages=['chaosproxy'],
     package_data={'chaosproxy': ['sample-conf.json']},
     requires=['argparse'],
