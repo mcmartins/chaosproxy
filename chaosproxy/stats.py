@@ -1,7 +1,7 @@
 import random
 
 
-def __log_normal(sigma, mean):
+def log_normal_value(sigma, mean):
     """
     Log normal distribution is an approximation on the 50th percentile
     :param sigma: The larger the value, the longer the tail
@@ -11,7 +11,7 @@ def __log_normal(sigma, mean):
     return float(round(random.gauss(mean, sigma)))
 
 
-def __random(a, b):
+def random_value(a, b):
     """
     Generates a random number within the range a, b
     :param a: random from

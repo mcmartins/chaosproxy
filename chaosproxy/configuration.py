@@ -1,7 +1,9 @@
 import os
 import json
 import logging
-import stats
+import time
+
+from stats import random_value, log_normal_value
 
 
 class Configuration:
@@ -26,23 +28,27 @@ class Configuration:
             logging.debug('Configuration input is:\n%s', json.dumps(config_file, indent=2))
             return config_file
 
+    @staticmethod
+    def get_short_unique_id():
+        return str(hex(int(time.time() * 999999))[2:])
+
     def get_localhost(self):
         return 'localhost', self.configuration.get('local').get('port')
 
     def get_remotehost(self):
         return self.configuration.get('remote').get('host')
 
-    def is_drop_request_enabled(self):
+    def __is_drop_request_enabled(self):
         if self.configuration.get('connection').get('request').get('dropRandomly'):
-            return stats.__random(1, 5000) % 3 == 0
+            return random_value(1, 5000) % 3 == 0
         return False
 
-    def is_drop_response_enabled(self):
+    def __is_drop_response_enabled(self):
         if self.configuration.get('connection').get('response').get('dropRandomly'):
-            return stats.__random(1, 5000) % 3 == 0
+            return random_value(1, 5000) % 3 == 0
         return False
 
-    def is_delay_request_enabled(self):
+    def __is_delay_request_enabled(self):
         return self.configuration.get('connection').get('request').get('delay') \
                and (
                    self.configuration.get('connection').get('request').get('delay').get('random') or
@@ -50,7 +56,7 @@ class Configuration:
                    self.configuration.get('connection').get('request').get('delay').get('fixed')
                )
 
-    def is_delay_response_enabled(self):
+    def __is_delay_response_enabled(self):
         return self.configuration.get('connection').get('response').get('delay') \
                and (
                    self.configuration.get('connection').get('response').get('delay').get('random') or
@@ -58,36 +64,46 @@ class Configuration:
                    self.configuration.get('connection').get('response').get('delay').get('fixed')
                )
 
-    def get_request_delay(self):
+    def __get_request_delay(self):
         if self.configuration.get('connection').get('request').get('delay') \
                 and self.configuration.get('connection').get('request').get('delay').get('random'):
             a = self.configuration.get('connection').get('request').get('delay').get('random').get('min', 0)
             b = self.configuration.get('connection').get('request').get('delay').get('random').get('max', 0)
-            return stats.__random(a, b) / float(1000)
+            return random_value(a, b) / float(1000)
         elif self.configuration.get('connection').get('request').get('delay') \
                 and self.configuration.get('connection').get('request').get('delay').get('logNormal'):
             sigma = self.configuration.get('connection').get('request').get('delay').get('logNormal').get('sigma')
             mean = self.configuration.get('connection').get('request').get('delay').get('logNormal').get('mean')
-            return stats.__log_normal(sigma=sigma, mean=mean) / float(1000)
+            return log_normal_value(sigma=sigma, mean=mean) / float(1000)
         elif self.configuration.get('connection').get('request').get('delay') \
                 and self.configuration.get('connection').get('request').get('delay').get('fixed'):
             return float(self.configuration.get('connection').get('request').get('delay').get('fixed')) / float(1000)
         else:
             return False
 
-    def get_response_delay(self):
+    def __get_response_delay(self):
         if self.configuration.get('connection').get('response').get('delay') \
                 and self.configuration.get('connection').get('response').get('delay').get('random'):
             a = self.configuration.get('connection').get('response').get('delay').get('random').get('min', 0)
             b = self.configuration.get('connection').get('response').get('delay').get('random').get('max', 0)
-            return stats.__random(a, b) / float(1000)
+            return random_value(a, b) / float(1000)
         elif self.configuration.get('connection').get('response').get('delay') \
                 and self.configuration.get('connection').get('response').get('delay').get('logNormal'):
             sigma = self.configuration.get('connection').get('response').get('delay').get('logNormal').get('sigma')
             mean = self.configuration.get('connection').get('response').get('delay').get('logNormal').get('mean')
-            return stats.__log_normal(sigma=sigma, mean=mean) / float(1000)
+            return log_normal_value(sigma=sigma, mean=mean) / float(1000)
         elif self.configuration.get('connection').get('response').get('delay') \
                 and self.configuration.get('connection').get('response').get('delay').get('fixed'):
             return float(self.configuration.get('connection').get('response').get('delay').get('fixed')) / float(1000)
         else:
             return False
+
+    def get_chaos_conf(self):
+        return {
+            'remote_host': self.get_remotehost(),
+            'request_delay': self.__get_request_delay(),
+            'response_delay': self.__get_response_delay(),
+            'request_drop': self.__is_drop_request_enabled(),
+            'response_drop': self.__is_drop_response_enabled(),
+            'request_id': self.get_short_unique_id()
+        }
