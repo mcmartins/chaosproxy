@@ -13,7 +13,7 @@ from chaosproxy import ChaosProxy
 
 @atexit.register
 def __cleanup():
-    server.socket.close()
+    server.server_close()
     logging.info('Stopping ChaosProxy')
 
 
