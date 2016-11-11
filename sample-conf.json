@@ -6,8 +6,21 @@
     "host": "https://remote-host:9443"
   },
   "connection": {
+    "stableInterval": 60,
+    "unstableInterval": 15,
     "request": {
-      "dropRandomly": true
+      "dropRandomly": true,
+      "delay": {
+        "random": {
+          "min": 100,
+          "max": 500
+        },
+        "logNormal": {
+          "mean": 200,
+          "sigma": 20
+        },
+        "fixed": 1000
+      }
     },
     "response": {
       "dropRandomly": true,

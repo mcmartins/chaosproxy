@@ -8,13 +8,11 @@ import message
 
 from urlparse import urljoin
 
-from configuration import Configuration
-
 __version__ = '0.0.1'
 
 
 class ChaosProxy:
-    configuration = Configuration({})
+    configuration = None
 
     def __init__(self, config):
         ChaosProxy.configuration = config
