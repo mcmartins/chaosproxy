@@ -8,8 +8,8 @@ from datetime import datetime, timedelta
 class Timer(threading.Thread):
     def __init__(self, stable_interval, unstable_interval):
         super(Timer, self).__init__()
-        self.stable_interval = stable_interval
-        self.unstable_interval = unstable_interval
+        self.stable_interval = stable_interval if stable_interval else 0
+        self.unstable_interval = unstable_interval if unstable_interval else 0
         self.timer_start = time.time()
         self.stable = True
         self.daemon = True
@@ -40,7 +40,7 @@ class Timer(threading.Thread):
             time.sleep(1)
 
     def __log_mode(self, interval):
-        date = (datetime.fromtimestamp(self.timer_start) + timedelta(0, interval)).strftime("%H:%M:%S")
+        date = (datetime.fromtimestamp(self.timer_start) + timedelta(seconds=interval)).strftime("%H:%M:%S")
         logging.info('Running %s mode for %ss until %s',
                      'stable' if self.stable else 'unstable', str(interval), str(date))
 
