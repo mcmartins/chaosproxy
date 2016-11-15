@@ -2,11 +2,17 @@
 # -*- coding: utf-8 -*-
 import SocketServer
 import argparse
+import atexit
 import logging
 import datetime
 import configuration
 
 from chaosproxy import ChaosProxy
+
+
+@atexit.register
+def __cleanup():
+    logging.info('Bye Bye')
 
 
 if __name__ == '__main__':
@@ -50,5 +56,3 @@ if __name__ == '__main__':
 
     # start server
     server.serve_forever()
-
-    logging.info('Bye Bye')
