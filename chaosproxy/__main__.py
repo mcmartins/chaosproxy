@@ -2,19 +2,11 @@
 # -*- coding: utf-8 -*-
 import SocketServer
 import argparse
-import atexit
 import logging
 import datetime
 import configuration
 
-from signal import signal, SIGTERM
 from chaosproxy import ChaosProxy
-
-
-@atexit.register
-def __cleanup():
-    server.shutdown()
-    logging.info('Bye Bye')
 
 
 if __name__ == '__main__':
@@ -28,9 +20,6 @@ if __name__ == '__main__':
                              dest='path_logs', required=False)
 
     args = args_parser.parse_args()
-
-    # exit listeners
-    signal(SIGTERM, __cleanup)
 
     # set logging config
     if args.path_logs:
@@ -61,3 +50,5 @@ if __name__ == '__main__':
 
     # start server
     server.serve_forever()
+
+    logging.info('Bye Bye')
