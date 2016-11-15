@@ -11,14 +11,13 @@ This tool is useful for testing Web APIs, where one needs to test reconciliation
 
 ChaosProxy will sit between both ends of a distributed system.
 
-The requester system should be configured with the ChaosProxy server address (localhost:9090) and 
-the ChaosServer should be configured with the requested server address (localhost:9091).
+The requester system should be configured with the ChaosProxy server address (e.g. localhost:9090) and 
+the ChaosServer should be configured with the requested server address (e.g. localhost:9091).
 
 Each request passing through the proxy will include headers with information on the operations performed.
 The main header is the *chaosproxy-requestid* that will allow tracking the request between all systems.
 
-So, a request to *http://localhost:9090/rest/service/resource*
-will be forward to *http://localhost:9091/rest/service/resource*:
+So, a request to *http://localhost:9090/rest/service/resource* will be forward to *http://localhost:9091/rest/service/resource*:
 
 ```log
 2016-10-28 10:59:37,174 - [INFO] - 53fe99e8d9522L - [POST] Request received
@@ -126,29 +125,41 @@ A simple json configuration is needed for ChaosProxy to work. The configuration 
 
 2 Remote: refers to the remote server for which ChaosProxy will forward all requests:
 
-- host: the full address (including port if not the default for http 80 or https 443). Chaos proxy will use this address to concatenate the path from the original request to local.
+- host: the full address (including port if not the default for http 80 or https 443). Chaos proxy will use this address to forward the original request.
 
-3 Connection: refers to the instability that will be caused on connections.
+3 Connection: refers to the instability that will be created on connections.
 
 - stableInterval:  refers to the interval time where connections **won't** be affected (in seconds)
 - unstableInterval: refers to the interval time where connections **will** be affected (in seconds)
-- ignoreEndpoints: a list of endpoints for which connections instability will never apply
+- ignoreEndpoints: a list of endpoints for which connections instability **will never** apply
 
 3.1 Request: refers to the instability to create on requests
 
 - dropRandomly: setting this to true, will drop requests on a random number divisible by 3 in a range of 1 to 5000, and **you'll get no response from server**
 - delay.random: delays requests based on a random number within the range a, b (inclusive)
 - delay.logNormal: delays requests based on an approximation on the 50th percentile
-- delay.fixed: delays requests based on this fixed value in milliseconds
+- delay.fixed: delays requests based on this fixed value (in milliseconds)
 
 3.2 Response: refers to the instability to create on response
 
 - dropRandomly: setting this to true, will drop responses on a random number divisible by 3 in a range of 1 to 5000, and **you'll get a 500 http error code with all response headers**
 - delay.random: delays requests based on a random number within the range a, b (inclusive)
 - delay.logNormal: delays requests based on an approximation on the 50th percentile
-- delay.fixed: delays requests based on this fixed value in milliseconds
+- delay.fixed: delays requests based on this fixed value (in milliseconds)
 
 ### Running the server
+
+The bin folder contains a script to start the server and one to stop it. 
+
+The script *chaosproxy.sh* downloads the latest version and starts the server.
+
+```bash
+[mcmartins@local ~]$ ./chaosproxy.sh conf.json
+# or
+[mcmartins@local ~]$ ./chaosproxy.sh conf.json false # if you do not want to download the latest version>
+```
+
+Or, if you prefer to do it manually:
 
 ```bash
 [mcmartins@local ~]$ python -m chaosproxy -v -i path/to/input.json -p /var/logs
