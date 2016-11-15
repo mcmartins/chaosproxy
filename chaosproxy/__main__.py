@@ -13,20 +13,19 @@ from chaosproxy import ChaosProxy
 
 @atexit.register
 def __cleanup():
-    server.server_close()
-    logging.info('Stopping ChaosProxy')
+    server.shutdown()
+    logging.info('Bye Bye')
 
 
 if __name__ == '__main__':
     args_parser = argparse.ArgumentParser(
-        description='Main entry point for ChaosProxy. Usage: python -m chaosproxy -v -i path/to/conf-file.json -p path/to/log'
+        description='Usage: python -m chaosproxy -v -i path/to/conf-file.json -p path/to/log'
     )
-    args_parser.add_argument('-v', '--verbose', help='increase output verbosity', action='store_true',
-                             required=False)
-    args_parser.add_argument('-i', '--input', help='input json file / object', action='store',
-                             dest='input', required=True)
-    args_parser.add_argument('-p', '--pathlogfile', help='path to store the log file, e.g. /home/user', action='store',
-                             dest='path_log_file', required=False)
+    args_parser.add_argument('-v', '--verbose', help='debug log', action='store_true', required=False)
+    args_parser.add_argument('-i', '--input', help='input json file / object', action='store', dest='input',
+                             required=True)
+    args_parser.add_argument('-p', '--pathlogs', help='path to store log files, e.g. /home/user', action='store',
+                             dest='path_logs', required=False)
 
     args = args_parser.parse_args()
 
@@ -34,9 +33,9 @@ if __name__ == '__main__':
     signal(SIGTERM, __cleanup)
 
     # set logging config
-    if args.path_log_file:
+    if args.path_logs:
         handler = logging.FileHandler(
-            '{0}/ChaosProxy-{1}.log'.format(args.path_log_file, datetime.datetime.now().strftime('%Y%m%d')))
+            '{0}/ChaosProxy-{1}.log'.format(args.path_logs, datetime.datetime.now().strftime('%Y%m%d')))
         formatter = logging.Formatter('%(asctime)s - [%(levelname)s] - %(message)s')
         handler.setFormatter(formatter)
         logging.getLogger().addHandler(handler)

@@ -6,6 +6,10 @@ from datetime import datetime, timedelta
 
 
 class Timer(threading.Thread):
+    """
+    This Timer runs indefinitely alternating between 2 distinct intervals, stable or unstable
+    The actual period can be checked using: is_in_stable_period()
+    """
     def __init__(self, stable_interval, unstable_interval):
         super(Timer, self).__init__()
         self.stable_interval = stable_interval if stable_interval else 0
