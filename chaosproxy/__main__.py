@@ -7,6 +7,7 @@ import logging
 import datetime
 import configuration
 
+from signal import signal, SIGTERM
 from chaosproxy import ChaosProxy
 
 
@@ -24,6 +25,9 @@ if __name__ == '__main__':
                              required=True)
     args_parser.add_argument('-p', '--pathlogs', help='path to store log files, e.g. /home/user', action='store',
                              dest='path_logs', required=False)
+
+    # exit listeners
+    signal(SIGTERM, __cleanup)
 
     args = args_parser.parse_args()
 
