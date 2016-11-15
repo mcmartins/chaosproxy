@@ -26,10 +26,10 @@ if __name__ == '__main__':
     args_parser.add_argument('-p', '--pathlogs', help='path to store log files, e.g. /home/user', action='store',
                              dest='path_logs', required=False)
 
+    args = args_parser.parse_args()
+
     # exit listeners
     signal(SIGTERM, __cleanup)
-
-    args = args_parser.parse_args()
 
     # set logging config
     if args.path_logs:
