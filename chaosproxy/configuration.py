@@ -14,7 +14,7 @@ class Configuration:
 
     def __init__(self, config):
         self.configuration = self.__parse(config)
-        self.__init_stable_timer()
+        self.__init_stability_timer()
 
     @staticmethod
     def __parse(config_file):
@@ -31,45 +31,24 @@ class Configuration:
             return config_file
 
     @staticmethod
-    def get_short_unique_id():
+    def __get_short_unique_id():
         return str(hex(int(time.time() * 999999))[2:])
 
-    def __init_stable_timer(self):
+    def __init_stability_timer(self):
         self.stability_timer = Timer(
             self.configuration.get('connection').get('stableInterval'),
             self.configuration.get('connection').get('unstableInterval')
         )
 
-    def __is_stable_period_active(self):
-        if self.stability_timer.is_stable_period():
-            return True
-        return False
-
-    def __is_drop_request_enabled(self):
+    def __get_drop_request_timeout(self):
         if self.configuration.get('connection').get('request').get('dropRandomly'):
             return random_value(1, 5000) % 3 == 0
         return False
 
-    def __is_drop_response_enabled(self):
+    def __get_drop_response_timeout(self):
         if self.configuration.get('connection').get('response').get('dropRandomly'):
             return random_value(1, 5000) % 3 == 0
         return False
-
-    def __is_delay_request_enabled(self):
-        return self.configuration.get('connection').get('request').get('delay') \
-               and (
-                   self.configuration.get('connection').get('request').get('delay').get('random') or
-                   self.configuration.get('connection').get('request').get('delay').get('logNormal') or
-                   self.configuration.get('connection').get('request').get('delay').get('fixed')
-               )
-
-    def __is_delay_response_enabled(self):
-        return self.configuration.get('connection').get('response').get('delay') \
-               and (
-                   self.configuration.get('connection').get('response').get('delay').get('random') or
-                   self.configuration.get('connection').get('response').get('delay').get('logNormal') or
-                   self.configuration.get('connection').get('response').get('delay').get('fixed')
-               )
 
     def __get_request_delay(self):
         if self.configuration.get('connection').get('request').get('delay') \
@@ -105,18 +84,27 @@ class Configuration:
         else:
             return False
 
+    def __is_endpoint_in_ignore_list(self, endpoint):
+        endpoints = self.configuration.get('connection').get('ignoreEndpoints')
+        endpoints = [] if not endpoints else endpoints
+        ignore = endpoint in endpoints
+        if ignore:
+            logging.debug('Endpoint \'%s\' detected, ChaosProxy will not interfere with this one...', endpoint)
+        return ignore
+
     def get_localhost(self):
         return 'localhost', self.configuration.get('local').get('port')
 
     def get_remotehost(self):
         return self.configuration.get('remote').get('host')
 
-    def get_chaos_conf(self):
+    def get_chaos_conf(self, endpoint):
+        enabled = not self.stability_timer.is_in_stable_period() and self.__is_endpoint_in_ignore_list(endpoint)
         return {
             'remote_host': self.get_remotehost(),
-            'request_delay': False if self.__is_stable_period_active() else self.__get_request_delay(),
-            'response_delay': False if self.__is_stable_period_active() else self.__get_response_delay(),
-            'request_drop': False if self.__is_stable_period_active() else self.__is_drop_request_enabled(),
-            'response_drop': False if self.__is_stable_period_active() else self.__is_drop_response_enabled(),
-            'request_id': self.get_short_unique_id()
+            'request_delay': False if enabled else self.__get_request_delay(),
+            'response_delay': False if enabled else self.__get_response_delay(),
+            'request_drop': False if enabled else self.__get_drop_request_timeout(),
+            'response_drop': False if enabled else self.__get_drop_response_timeout(),
+            'request_id': self.__get_short_unique_id()
         }

@@ -8,6 +8,7 @@
   "connection": {
     "stableInterval": 60,
     "unstableInterval": 15,
+    "ignoreEndpoints": ["/endpoint"],
     "request": {
       "dropRandomly": true,
       "delay": {

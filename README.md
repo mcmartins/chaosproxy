@@ -17,9 +17,12 @@ the ChaosServer should be configured with the requested server address (localhos
 Each request passing through the proxy will include headers with information on the operations performed.
 The main header is the *chaosproxy-requestid* that will allow tracking the request between all systems.
 
+So, a request to *http://localhost:9090/rest/service/resource*
+will be forward to *http://localhost:9091/rest/service/resource*:
+
 ```log
 2016-10-28 10:59:37,174 - [INFO] - 53fe99e8d9522L - [POST] Request received
-2016-10-28 10:59:37,176 - [INFO] - 53fe99e8d9522L - Forwarding request to [https://some-host:9443/rest/service/resource?hash=4ef99c6655d40667ca67f3c83614187baa6b161fec8a3ab76ec0fe851b256fc4]
+2016-10-28 10:59:37,176 - [INFO] - 53fe99e8d9522L - Forwarding request to [http://localhost:9091/rest/service/resource]
 2016-10-28 10:59:37,184 - [DEBUG] - 53fe99e8d9522L - Request headers:
 {
   "origin": "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop", 
@@ -80,6 +83,9 @@ The following is a sample configuration file:
     "host": "http://some-remote-service.com:8080"
   },
   "connection": {
+    "stableInterval": 60,
+    "unstableInterval": 15,
+    "ignoreEndpoints": ["/endpoint"],
     "request": {
       "dropRandomly": true,
       "delay": {
@@ -122,7 +128,11 @@ A simple json configuration is needed for ChaosProxy to work. The configuration 
 
 - host: the full address (including port if not the default for http 80 or https 443). Chaos proxy will use this address to concatenate the path from the original request to local.
 
-3 Connection: refers to the instability that will be caused on connections. 
+3 Connection: refers to the instability that will be caused on connections.
+
+- stableInterval:  refers to the interval time where connections **won't** be affected (in seconds)
+- unstableInterval: refers to the interval time where connections **will** be affected (in seconds)
+- ignoreEndpoints: a list of endpoints for which connections instability will never apply
 
 3.1 Request: refers to the instability to create on requests
 

@@ -16,9 +16,9 @@ class Timer(threading.Thread):
         self.start()
 
     def run(self):
-        if self.stable_interval == self.unstable_interval == 0:
+        if self.stable_interval == 0 or self.unstable_interval == 0:
             logging.info(
-                'stableInterval and unstableInterval on connections were not defined... Running Unstable mode forever'
+                'stableInterval and unstableInterval on connections were not defined... Running unstable mode forever'
             )
             self.stable = False
             return
@@ -44,5 +44,5 @@ class Timer(threading.Thread):
         logging.info('Running %s mode for %ss until %s',
                      'stable' if self.stable else 'unstable', str(interval), str(date))
 
-    def is_stable_period(self):
+    def is_in_stable_period(self):
         return self.stable

@@ -46,7 +46,7 @@ class ChaosProxy:
 
         def __do_proxy(self):
             # chaos configuration
-            chaos = ChaosProxy.configuration.get_chaos_conf()
+            chaos = ChaosProxy.configuration.get_chaos_conf(self.path)
             logging.info('%s - [%s] Request received', chaos.get('request_id'), str(self.command))
             # hijack request and change url
             url = urljoin(chaos.get('remote_host'), self.path)
