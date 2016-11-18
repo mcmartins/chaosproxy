@@ -44,78 +44,78 @@ class ChaosProxy:
 
         server_version = 'ChaosServer/' + __version__
 
-        def __do_proxy(self):
-            # chaos configuration
-            chaos = ChaosProxy.configuration.get_chaos_conf(self.path)
-            logging.info('%s - [%s] Request received', chaos.get('request_id'), str(self.command))
+        def __do_proxy(self, request_id):
+            logging.info('%s - [%s] Request received', request_id, str(self.command))
             # hijack request and change url
-            url = urljoin(chaos.get('remote_host'), self.path)
-            logging.info('%s - Forwarding request to [%s]', chaos.get('request_id'), url)
+            url = urljoin(ChaosProxy.configuration.get_remotehost(), self.path)
+            logging.info('%s - Forwarding request to [%s]', request_id, url)
             # keep same headers from the original request
-            new_headers = self.__handle_request_headers(chaos)
+            new_headers = self.__handle_request_headers(request_id)
             # keep same body of the original request
-            body = self.__handle_request_body(chaos)
+            body = self.__handle_request_body(request_id)
             try:
+                # create chaos configuration
+                chaos = ChaosProxy.configuration.get_chaos_conf(self.path, body)
                 # send request to remote host
-                response = self.__do_request(url, body, new_headers, chaos)
+                response = self.__do_request(url, body, new_headers, chaos, request_id)
                 self.response_code = response.code
                 self.send_head()
                 self.copyfile(response, self.rfile)
                 self.rfile.close()
                 self.wfile.close()
             except IOError, e:
-                logging.error('%s - Oops something went wrong: %s', chaos.get('request_id'), e)
+                logging.error('%s - Oops something went wrong: %s', request_id, e)
 
-            logging.info('%s - [%s] Request processed', chaos.get('request_id'), str(self.command))
+            logging.info('%s - [%s] Request processed', request_id, str(self.command))
 
-        def __do_request(self, url, body, headers, chaos):
+        def __do_request(self, url, body, headers, chaos, request_id):
             req = urllib2.Request(url, body, headers)
             try:                
                 if chaos.get('request_drop'):
-                    logging.info('%s - Request dropped', chaos.get('request_id'))
-                    return ChaosProxy.DummyResponse(chaos.get('request_id'))  # drop request
+                    logging.info('%s - Request dropped', request_id)
+                    return ChaosProxy.DummyResponse(request_id)  # drop request
                 if chaos.get('request_delay'):
-                    logging.info('%s - Request delaying for [%s s]', chaos.get('request_id'), chaos.get('request_delay'))
+                    logging.info('%s - Request delaying for [%s s]', request_id, chaos.get('request_delay'))
                     time.sleep(chaos.get('request_delay'))  # delay x seconds
                 response = urllib2.urlopen(req)
             except urllib2.URLError, e:
-                logging.error('%s - Oops something went wrong:\n%s', chaos.get('request_id'), e)
-                response = ChaosProxy.DummyResponse(chaos.get('request_id'))
+                logging.error('%s - Oops something went wrong:\n%s', request_id, e)
+                response = ChaosProxy.DummyResponse(request_id)
             if chaos.get('response_drop'):
-                logging.info('%s - Response dropped', chaos.get('request_id'))
-                response = ChaosProxy.DummyResponse(chaos.get('request_id'), response)  # drop response
+                logging.info('%s - Response dropped', request_id)
+                response = ChaosProxy.DummyResponse(request_id, response)  # drop response
             if chaos.get('response_delay'):
-                logging.info('%s - Response Delayed for [%s s]', chaos.get('request_id'), chaos.get('response_delay'))
+                logging.info('%s - Response Delayed for [%s s]', request_id, chaos.get('response_delay'))
                 time.sleep(chaos.get('response_delay'))  # delay x seconds
             # copy response headers and add new headers with chaos server info information
-            self.__handle_response_headers(response, chaos)
+            self.__handle_response_headers(response, chaos, request_id)
             return response
 
-        def __handle_request_body(self, chaos):
+        def __handle_request_body(self, request_id):
             body = None
             if self.headers.getheader('content-length') is not None:
                 content_len = int(self.headers.getheader('content-length'))
                 body = self.rfile.read(content_len)
-            logging.debug('%s - Request body:\n%s', chaos.get('request_id'), message.format(body))
+            logging.debug('%s - Request body:\n%s', request_id, message.format(body))
             return body
 
-        def __handle_request_headers(self, chaos):
+        def __handle_request_headers(self, request_id):
             new_headers = copy.copy(self.headers)
             new_headers['ChaosProxy-Host'] = self.address_string()
-            new_headers['ChaosProxy-RequestId'] = chaos.get('request_id')
+            new_headers['ChaosProxy-RequestId'] = request_id
             # remove accept encoding from headers
             if new_headers.get('accept-encoding'):
                 del new_headers['accept-encoding']
             # remove host from headers, otherwise the request will be refused by almost all servers
             if new_headers.get('host'):
                 del new_headers['host']
-            logging.debug('%s - Request headers:\n%s', chaos.get('request_id'), message.format(new_headers.dict))
+            logging.debug('%s - Request headers:\n%s', request_id, message.format(new_headers.dict))
             return new_headers
 
-        def __handle_response_headers(self, response, chaos):
+        def __handle_response_headers(self, response, chaos, request_id):
             self.headers = copy.copy(response.headers)
             self.headers['ChaosProxy-Host'] = self.address_string()
-            self.headers['ChaosProxy-RequestId'] = chaos.get('request_id')
+            self.headers['ChaosProxy-RequestId'] = request_id
             self.headers['ChaosProxy-Drop-Request'] = str(chaos.get('request_drop'))
             self.headers['ChaosProxy-Drop-Response'] = str(chaos.get('response_drop'))
             self.headers['ChaosProxy-Delay-Request'] = \
@@ -124,7 +124,7 @@ class ChaosProxy:
                 str(chaos.get('response_delay')) + (' s' if chaos.get('response_delay') else '')
             self.headers['Server'] = self.version_string()
             self.headers['Date'] = self.date_time_string()
-            logging.debug('%s - Response headers:\n%s', chaos.get('request_id'), message.format(response.headers.dict))
+            logging.debug('%s - Response headers:\n%s', request_id, message.format(response.headers.dict))
 
         def send_head(self):
             try:
@@ -148,19 +148,19 @@ class ChaosProxy:
                 self.wfile.write('%s %d %s\r\n' % (self.protocol_version, code, message))
 
         def do_GET(self):
-            self.__do_proxy()
+            self.__do_proxy(ChaosProxy.configuration.__get_short_unique_id())
 
         def do_POST(self):
-            self.__do_proxy()
+            self.__do_proxy(ChaosProxy.configuration.__get_short_unique_id())
 
         def do_PUT(self):
-            self.__do_proxy()
+            self.__do_proxy(ChaosProxy.configuration.__get_short_unique_id())
 
         def do_PATCH(self):
-            self.__do_proxy()
+            self.__do_proxy(ChaosProxy.configuration.__get_short_unique_id())
 
         def do_DELETE(self):
-            self.__do_proxy()
+            self.__do_proxy(ChaosProxy.configuration.__get_short_unique_id())
 
         def do_COPY(self):
-            self.__do_proxy()
+            self.__do_proxy(ChaosProxy.configuration.__get_short_unique_id())

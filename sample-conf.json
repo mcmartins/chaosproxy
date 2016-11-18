@@ -8,7 +8,8 @@
   "connection": {
     "stableInterval": 60,
     "unstableInterval": 15,
-    "ignoreEndpoints": ["/endpoint"],
+    "ignoreIfEndpointContains": ["endpoint"],
+    "ignoreIfBodyContains": ["initsession"],
     "request": {
       "dropRandomly": true,
       "delay": {

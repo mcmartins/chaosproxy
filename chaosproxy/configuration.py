@@ -84,13 +84,22 @@ class Configuration:
         else:
             return False
 
-    def __is_endpoint_in_ignore_list(self, endpoint):
-        endpoints = self.configuration.get('connection').get('ignoreEndpoints')
+    def __ignore_if_endpoint_in_ignore_list(self, endpoint):
+        endpoints = self.configuration.get('connection').get('ignoreIfEndpointContains')
         endpoints = [] if not endpoints else endpoints
-        ignore = endpoint in endpoints
-        if ignore:
+        matches = [e for e in endpoints if endpoint in e]
+        if len(matches) > 0:
             logging.debug('Endpoint \'%s\' detected, ChaosProxy will not interfere with this one...', endpoint)
-        return ignore
+        return len(matches) > 0
+
+    def __ignore_if_body_contains_string(self, body):
+        strings = self.configuration.get('connection').get('ignoreIfBodyContains')
+        strings = [] if not strings else strings
+        matches = [s for s in strings if s in body]
+        if len(matches) > 0:
+            logging.debug('String(s) \'%s\' detected in body, ChaosProxy will not interfere with this one...',
+                          ";".join(matches))
+        return len(matches) > 0
 
     def get_localhost(self):
         return 'localhost', self.configuration.get('local').get('port')
@@ -98,13 +107,13 @@ class Configuration:
     def get_remotehost(self):
         return self.configuration.get('remote').get('host')
 
-    def get_chaos_conf(self, endpoint):
-        enabled = not self.stability_timer.is_in_stable_period() and self.__is_endpoint_in_ignore_list(endpoint)
+    def get_chaos_conf(self, endpoint, body):
+        stable = self.stability_timer.is_in_stable_period() \
+                 or self.__ignore_if_endpoint_in_ignore_list(endpoint) \
+                 or self.__ignore_if_body_contains_string(body)
         return {
-            'remote_host': self.get_remotehost(),
-            'request_delay': False if enabled else self.__get_request_delay(),
-            'response_delay': False if enabled else self.__get_response_delay(),
-            'request_drop': False if enabled else self.__get_drop_request_timeout(),
-            'response_drop': False if enabled else self.__get_drop_response_timeout(),
-            'request_id': self.__get_short_unique_id()
+            'request_delay': False if stable else self.__get_request_delay(),
+            'response_delay': False if stable else self.__get_response_delay(),
+            'request_drop': False if stable else self.__get_drop_request_timeout(),
+            'response_drop': False if stable else self.__get_drop_response_timeout(),
         }

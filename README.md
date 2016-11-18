@@ -84,7 +84,8 @@ The following is a sample configuration file:
   "connection": {
     "stableInterval": 60,
     "unstableInterval": 15,
-    "ignoreEndpoints": ["/endpoint"],
+    "ignoreIfEndpointContains": ["endpoint"],
+    "ignoreIfBodyContains": ["initsession"],
     "request": {
       "dropRandomly": true,
       "delay": {
@@ -131,7 +132,8 @@ A simple json configuration is needed for ChaosProxy to work. The configuration 
 
 - stableInterval:  refers to the interval time where connections **won't** be affected (in seconds)
 - unstableInterval: refers to the interval time where connections **will** be affected (in seconds)
-- ignoreEndpoints: a list of endpoints for which connections instability **will never** apply
+- ignoreIfEndpointContains: a list of strings for which connections instability **will never** apply if they are present in the endpoint
+- ignoreIfBodyContains: a list of strings for which connections instability **will never** apply if they are present in the body
 
 3.1 Request: refers to the instability to create on requests
 
