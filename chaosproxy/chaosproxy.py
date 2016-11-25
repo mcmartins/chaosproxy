@@ -14,6 +14,10 @@ __version__ = '0.0.1'
 class ChaosProxy:
     configuration = None
 
+    @staticmethod
+    def get_short_unique_id():
+        return str(hex(int(time.time() * 999999))[2:])
+
     def __init__(self, config):
         ChaosProxy.configuration = config
 
@@ -148,19 +152,19 @@ class ChaosProxy:
                 self.wfile.write('%s %d %s\r\n' % (self.protocol_version, code, message))
 
         def do_GET(self):
-            self.__do_proxy(ChaosProxy.configuration.__get_short_unique_id())
+            self.__do_proxy(ChaosProxy.get_short_unique_id())
 
         def do_POST(self):
-            self.__do_proxy(ChaosProxy.configuration.__get_short_unique_id())
+            self.__do_proxy(ChaosProxy.get_short_unique_id())
 
         def do_PUT(self):
-            self.__do_proxy(ChaosProxy.configuration.__get_short_unique_id())
+            self.__do_proxy(ChaosProxy.get_short_unique_id())
 
         def do_PATCH(self):
-            self.__do_proxy(ChaosProxy.configuration.__get_short_unique_id())
+            self.__do_proxy(ChaosProxy.get_short_unique_id())
 
         def do_DELETE(self):
-            self.__do_proxy(ChaosProxy.configuration.__get_short_unique_id())
+            self.__do_proxy(ChaosProxy.get_short_unique_id())
 
         def do_COPY(self):
-            self.__do_proxy(ChaosProxy.configuration.__get_short_unique_id())
+            self.__do_proxy(ChaosProxy.get_short_unique_id())

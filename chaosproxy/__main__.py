@@ -5,6 +5,10 @@ import argparse
 import atexit
 import logging
 import datetime
+import traceback
+
+import StringIO
+
 import configuration
 
 from signal import signal, SIGTERM
@@ -16,7 +20,22 @@ def __cleanup():
     logging.info('Bye Bye')
 
 
+def traceback_exception_handler():
+
+    def log_unhandled_exception(etype, value, tb, limit=None, file=None):
+        tb_output = StringIO.StringIO()
+        traceback.print_tb(tb, limit, tb_output)
+        logging.warn(tb_output.getvalue())
+        tb_output.close()
+
+    traceback.print_exception = log_unhandled_exception
+
+
 if __name__ == '__main__':
+    # global exception hook
+    traceback_exception_handler()
+
+    # arguments parser
     args_parser = argparse.ArgumentParser(
         description='Usage: python -m chaosproxy -v -i path/to/conf-file.json -p path/to/log'
     )

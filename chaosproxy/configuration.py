@@ -1,7 +1,6 @@
 import os
 import json
 import logging
-import time
 
 from timer import Timer
 from stats import random_value, log_normal_value
@@ -29,10 +28,6 @@ class Configuration:
                     raise Exception('Input provided is not an existing file or valid JSON string!')
             logging.debug('Configuration input is:\n%s', json.dumps(config_file, indent=2))
             return config_file
-
-    @staticmethod
-    def __get_short_unique_id():
-        return str(hex(int(time.time() * 999999))[2:])
 
     def __init_stability_timer(self):
         self.stability_timer = Timer(
@@ -89,7 +84,8 @@ class Configuration:
         endpoints = [] if not endpoints else endpoints
         matches = [e for e in endpoints if endpoint in e]
         if len(matches) > 0:
-            logging.debug('Endpoint \'%s\' detected, ChaosProxy will not interfere with this one...', endpoint)
+            logging.debug('Endpoint \'%s\' detected, ChaosProxy will not interfere with this one...',
+                          ";".join(matches))
         return len(matches) > 0
 
     def __ignore_if_body_contains_string(self, body):
@@ -97,7 +93,7 @@ class Configuration:
         strings = [] if not strings else strings
         matches = [s for s in strings if s in body]
         if len(matches) > 0:
-            logging.debug('String(s) \'%s\' detected in body, ChaosProxy will not interfere with this one...',
+            logging.debug('Strings \'%s\' detected in body, ChaosProxy will not interfere with this one...',
                           ";".join(matches))
         return len(matches) > 0
 
