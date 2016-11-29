@@ -1,25 +1,24 @@
 # ChaosProxy
 
 ChaosProxy is a proxy server that creates an unstable environment where connections 
-are delayed or dropped making requests not reach the remove host and responses not arriving.
+are delayed or dropped making requests not reach a remote host and responses not arriving.
 
-This server runs locally on a specific port and redirects all requests to a specific remote server.
+This tool runs locally on a specific port and redirects all requests to a specific remote server.
 
 ## Use Cases
 
-This tool is useful for testing Web APIs, where one needs to test reconciliation and rainy day scenarios.
+This tool is useful for testing Web APIs, where one needs to test reconciliation on rainy day scenarios.
 
-ChaosProxy will sit between both ends of a distributed system.
-
-The requester system should be configured with the ChaosProxy server address (e.g. localhost:9090) and 
-the ChaosServer should be configured with the requested server address (e.g. localhost:9091).
+ChaosProxy will sit between both ends of a distributed system. The requester system should be configured with the
+ChaosProxy server address (e.g. localhost:9090) and the ChaosServer should be configured with the
+requested server address (e.g. localhost:9091).
 
 Each request passing through the proxy will include headers with information on the operations performed.
-The main header is the *chaosproxy-requestid* that will allow tracking the request between all systems.
+The main header is *chaosproxy-requestid* and will allow tracking the request in all systems.
 
-So, a request to *http://localhost:9090/rest/service/resource* will be forward to *http://localhost:9091/rest/service/resource*:
+So, e.g., a request to *http://localhost:9090/rest/service/resource* will be forward to *http://localhost:9091/rest/service/resource*:
 
-```log
+```none
 2016-10-28 10:59:37,174 - [INFO] - 53fe99e8d9522L - [POST] Request received
 2016-10-28 10:59:37,176 - [INFO] - 53fe99e8d9522L - Forwarding request to [http://localhost:9091/rest/service/resource]
 2016-10-28 10:59:37,184 - [DEBUG] - 53fe99e8d9522L - Request headers:
@@ -156,16 +155,20 @@ The bin folder contains a script to start the server and one to stop it.
 The script *chaosproxy.sh* downloads the latest version and starts the server.
 
 ```bash
-[mcmartins@local ~]$ ./chaosproxy.sh conf.json
-# or
-[mcmartins@local ~]$ ./chaosproxy.sh conf.json false # if you do not want to download the latest version>
+# will download, install and run always the latest code available
+[mcmartins@local ~]$ ./chaosproxy.sh path/to/input.json
+# or if you don't want to download the latest version include false in the end
+[mcmartins@local ~]$ ./chaosproxy.sh path/to/input.json false
+# to kill the server
+[mcmartins@local ~]$ ./kill_chaosproxy.sh
 ```
 
 Or, if you prefer to do it manually:
 
 ```bash
+# importing a file as configuration
 [mcmartins@local ~]$ python -m chaosproxy -v -i path/to/input.json -p /var/logs
-# or
+# or importing a string as configuration
 [mcmartins@local ~]$ python -m chaosproxy -v -i '{"json": 0}' -p /var/logs
 ```
 

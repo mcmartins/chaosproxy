@@ -29,6 +29,6 @@ fi
 
 echo "Starting ChaosProxy using the following configuration file: ${CONFIG_FILE}..."
 
-python2 -m chaosproxy.__main__ -v -i ${CONFIG_FILE} -p ${LOG_FILE_PATH} &>/dev/null
+python2 -m chaosproxy.__main__ -v -i ${CONFIG_FILE} -p ${LOG_FILE_PATH} &>/dev/null &
 
 echo "Log file path is: '${LOG_FILE_PATH}'"
