@@ -35,7 +35,9 @@ class ChaosProxy:
 
         def read(self, length=0):
             if self.stream:
-                logging.debug("%s - Response dropped received:\n%s", self.id, message.format(self.stream.read()))
+                content_type = self.headers.getheader('content-type')
+                logging.debug("%s - Response dropped received:\n%s", self.id,
+                              message.format(self.stream.read(), content_type))
                 self.stream.close()
             else:
                 logging.debug('%s - Response body:\n{}', self.id)
@@ -74,7 +76,7 @@ class ChaosProxy:
 
         def __do_request(self, url, body, headers, chaos, request_id):
             req = urllib2.Request(url, body, headers)
-            try:                
+            try:
                 if chaos.get('request_drop'):
                     logging.info('%s - Request dropped', request_id)
                     return ChaosProxy.DummyResponse(request_id)  # drop request
@@ -96,11 +98,13 @@ class ChaosProxy:
             return response
 
         def __handle_request_body(self, request_id):
-            body = None
-            if self.headers.getheader('content-length') is not None:
+            if self.headers.getheader('content-length') is not None:  # yeah, in case the server just don't send this?
                 content_len = int(self.headers.getheader('content-length'))
-                body = self.rfile.read(content_len)
-            logging.debug('%s - Request body:\n%s', request_id, message.format(body))
+            else:
+                content_len = 2048  # some big buffer
+            body = self.rfile.read(content_len)
+            content_type = self.headers.getheader('content-type')
+            logging.debug('%s - Request body:\n%s', request_id, message.format(body, content_type))
             return body
 
         def __handle_request_headers(self, request_id):
@@ -113,7 +117,7 @@ class ChaosProxy:
             # remove host from headers, otherwise the request will be refused by almost all servers
             if new_headers.get('host'):
                 del new_headers['host']
-            logging.debug('%s - Request headers:\n%s', request_id, message.format(new_headers.dict))
+            logging.debug('%s - Request headers:\n%s', request_id, message.format(new_headers.dict, message.JSON))
             return new_headers
 
         def __handle_response_headers(self, response, chaos, request_id):
@@ -128,7 +132,7 @@ class ChaosProxy:
                 str(chaos.get('response_delay')) + (' s' if chaos.get('response_delay') else '')
             self.headers['Server'] = self.version_string()
             self.headers['Date'] = self.date_time_string()
-            logging.debug('%s - Response headers:\n%s', request_id, message.format(response.headers.dict))
+            logging.debug('%s - Response headers:\n%s', request_id, message.format(response.headers.dict, message.JSON))
 
         def send_head(self):
             try:
