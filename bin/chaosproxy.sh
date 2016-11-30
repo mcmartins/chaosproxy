@@ -3,12 +3,12 @@
 set -e
 
 THIS=`basename $0`
-CONFIG_FILE="~/.conf_chaosproxy.json"
+CONFIG_FILE=~/.conf_chaosproxy.json
 DOWNLOAD=$1
-LOG_FILE_PATH="."
-CHAOS_PROXY_ZIP="chaosproxy.zip"
-CHAOS_PROXY_DIR="chaosproxy-master"
-CHAOS_PROXY_REMOTE="https://codeload.github.com/mcmartins/chaosproxy/zip/master"
+LOG_FILE_PATH=~/
+CHAOS_PROXY_ZIP=chaosproxy.zip
+CHAOS_PROXY_DIR=chaosproxy-master
+CHAOS_PROXY_REMOTE=https://codeload.github.com/mcmartins/chaosproxy/zip/master
 
 if [[ "${DOWNLOAD}" == "false" ]]; then
     echo "Using local version of ChaosProxy..."
