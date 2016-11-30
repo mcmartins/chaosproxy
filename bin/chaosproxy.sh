@@ -3,8 +3,8 @@
 set -e
 
 THIS=`basename $0`
-CONFIG_FILE=$1
-DOWNLOAD=$2
+CONFIG_FILE="~/.conf_chaosproxy.json"
+DOWNLOAD=$1
 LOG_FILE_PATH="."
 CHAOS_PROXY_ZIP="chaosproxy.zip"
 CHAOS_PROXY_DIR="chaosproxy-master"
@@ -14,7 +14,7 @@ if [[ "${DOWNLOAD}" == "false" ]]; then
     echo "Using local version of ChaosProxy..."
 else
     echo "Removing installed version of ChaosProxy from: ${CHAOS_PROXY_DIR}..."
-    rm -rf ${CHAOS_PROXY_DIR}
+    sudo rm -rf ${CHAOS_PROXY_DIR}
     echo "Downloading latest version of ChaosProxy from: ${CHAOS_PROXY_REMOTE}..."
     curl -so ${CHAOS_PROXY_ZIP} ${CHAOS_PROXY_REMOTE} > /dev/null
     echo "ChaosProxy download finished."

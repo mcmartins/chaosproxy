@@ -150,26 +150,32 @@ A simple json configuration is needed for ChaosProxy to work. The configuration 
 
 ### Running the server
 
-The bin folder contains a script to start the server and one to stop it. 
-
-The script *chaosproxy.sh* downloads the latest version and starts the server.
+The bin folder contains scripts to help using ChaosProxy. Add the following command line helper:
 
 ```bash
-# will download, install and run always the latest code available
-[mcmartins@local ~]$ ./chaosproxy.sh path/to/input.json
-# or if you don't want to download the latest version include false in the end
-[mcmartins@local ~]$ ./chaosproxy.sh path/to/input.json false
-# to kill the server
-[mcmartins@local ~]$ ./kill_chaosproxy.sh
+[mcmartins@local ~]$ echo "function conf_chaosproxy() { (wget -nc -O ~/.conf_chaosproxy.json https://raw.githubusercontent.com/mcmartins/chaosproxy/master/sample-conf.json &> /dev/null || true) && vi ~/.conf_chaosproxy.json ;}" >> ~/.bashrc && source ~/.bashrc
+[mcmartins@local ~]$ echo "function start_chaosproxy() { (wget -nc -O ~/.start_chaosproxy.sh https://raw.githubusercontent.com/mcmartins/chaosproxy/master/bin/chaosproxy.sh &> /dev/null && chmod +x ~/.start_chaosproxy.sh || true) && ~/.start_chaosproxy.sh \$1 \$2 ;}" >> ~/.bashrc && source ~/.bashrc
+[mcmartins@local ~]$ echo "function stop_chaosproxy() { (wget -nc -O ~/.stop_chaosproxy.sh https://raw.githubusercontent.com/mcmartins/chaosproxy/master/bin/kill_chaosproxy.sh &> /dev/null && chmod +x ~/.stop_chaosproxy.sh || true) && ~/.stop_chaosproxy.sh ;}" >> ~/.bashrc && source ~/.bashrc
 ```
 
-Or, if you prefer to do it manually:
+To create a configuration file:
 
 ```bash
-# importing a file as configuration
-[mcmartins@local ~]$ python -m chaosproxy -v -i path/to/input.json -p /var/logs
-# or importing a string as configuration
-[mcmartins@local ~]$ python -m chaosproxy -v -i '{"json": 0}' -p /var/logs
+[mcmartins@local ~]$ conf_chaosproxy
+```
+
+To start the server:
+
+```bash
+[mcmartins@local ~]$ start_chaosproxy
+# or if you do not want to download the code again, pass the false flag 
+[mcmartins@local ~]$ start_chaosproxy false
+```
+
+To stop the server:
+
+```bash
+[mcmartins@local ~]$ stop_chaosproxy
 ```
 
 # LICENSE
