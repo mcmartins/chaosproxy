@@ -6,8 +6,8 @@
     "host": "https://remote-host:9443"
   },
   "connection": {
-    "stableInterval": 60,
-    "unstableInterval": 15,
+    "stableInterval": 60000,
+    "unstableInterval": 15000,
     "ignoreIfEndpointContains": ["endpoint"],
     "ignoreIfBodyContains": ["initsession"],
     "request": {

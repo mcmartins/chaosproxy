@@ -31,8 +31,8 @@ class Configuration:
 
     def __init_stability_timer(self):
         self.stability_timer = Timer(
-            self.configuration.get('connection').get('stableInterval'),
-            self.configuration.get('connection').get('unstableInterval')
+            self.configuration.get('connection').get('stableInterval') / float(1000),
+            self.configuration.get('connection').get('unstableInterval') / float(1000)
         )
 
     def __get_drop_request_timeout(self):

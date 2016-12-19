@@ -4,30 +4,27 @@ set -e
 
 THIS=`basename $0`
 CONFIG_FILE=~/.conf_chaosproxy.json
-DOWNLOAD=$1
 LOG_FILE_PATH=~/
 CHAOS_PROXY_ZIP=chaosproxy.zip
 CHAOS_PROXY_DIR=chaosproxy-master
 CHAOS_PROXY_REMOTE=https://codeload.github.com/mcmartins/chaosproxy/zip/master
 
-if [[ "${DOWNLOAD}" == "false" ]]; then
-    echo "Using local version of ChaosProxy..."
-else
-    echo "Removing installed version of ChaosProxy from: ${CHAOS_PROXY_DIR}..."
-    sudo rm -rf ${CHAOS_PROXY_DIR}
-    echo "Downloading latest version of ChaosProxy from: ${CHAOS_PROXY_REMOTE}..."
+if [ ! -d "${CHAOS_PROXY_DIR}" ]; then
+    echo "Downloading latest version of ChaosProxy from: '${CHAOS_PROXY_REMOTE}'"
     curl -so ${CHAOS_PROXY_ZIP} ${CHAOS_PROXY_REMOTE} > /dev/null
-    echo "ChaosProxy download finished."
-	echo "Installing ChaosProxy..."
+    echo "ChaosProxy download finished... Installation directory is: '${CHAOS_PROXY_DIR}'"
+	echo "Installing ChaosProxy"
 	unzip ${CHAOS_PROXY_ZIP}
 	rm ${CHAOS_PROXY_ZIP}
 	cd ${CHAOS_PROXY_DIR}
 	sudo python2 setup.py clean build install
-	echo "ChaosProxy installation finished."
+	echo "ChaosProxy installation finished"
 	cd ..
+else
+    echo "Using local version of ChaosProxy... If you want to update it, stop the server, delete the folder '${CHAOS_PROXY_DIR}' and start the server again..."
 fi
 
-echo "Starting ChaosProxy using the following configuration file: ${CONFIG_FILE}..."
+echo "Starting ChaosProxy using the following configuration file: ${CONFIG_FILE}"
 
 python2 -m chaosproxy.__main__ -v -i ${CONFIG_FILE} -p ${LOG_FILE_PATH} &>/dev/null &
 
