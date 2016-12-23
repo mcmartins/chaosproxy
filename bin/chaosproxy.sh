@@ -2,30 +2,31 @@
 
 set -e
 
-THIS=`basename $0`
-CONFIG_FILE=~/.conf_chaosproxy.json
-LOG_FILE_PATH=~/
-CHAOS_PROXY_ZIP=chaosproxy.zip
-CHAOS_PROXY_DIR=chaosproxy-master
-CHAOS_PROXY_REMOTE=https://codeload.github.com/mcmartins/chaosproxy/zip/master
+this=`basename $0`
+config_file=~/.conf_chaosproxy.json
+log_file_path=~/
+chaos_proxy_zip=chaosproxy.zip
+chaos_proxy_dir=chaosproxy-master
+chaos_proxy_remote=https://codeload.github.com/mcmartins/chaosproxy/zip/master
 
-if [ ! -d "${CHAOS_PROXY_DIR}" ]; then
-    echo "Downloading latest version of ChaosProxy from: '${CHAOS_PROXY_REMOTE}'"
-    curl -so ${CHAOS_PROXY_ZIP} ${CHAOS_PROXY_REMOTE} > /dev/null
-    echo "ChaosProxy download finished... Installation directory is: '${CHAOS_PROXY_DIR}'"
+if [ ! -d "${chaos_proxy_dir}" ]; then
+    echo "Downloading latest version of ChaosProxy from: '${chaos_proxy_remote}'"
+    curl -so ${chaos_proxy_zip} ${chaos_proxy_remote} > /dev/null
+    echo "ChaosProxy download finished... Installation directory is: '${chaos_proxy_dir}'"
 	echo "Installing ChaosProxy"
-	unzip ${CHAOS_PROXY_ZIP}
-	rm ${CHAOS_PROXY_ZIP}
-	cd ${CHAOS_PROXY_DIR}
+	unzip ${chaos_proxy_zip}
+	rm ${chaos_proxy_zip}
+	cd ${chaos_proxy_dir}
 	sudo python2 setup.py clean build install
 	echo "ChaosProxy installation finished"
 	cd ..
 else
-    echo "Using local version of ChaosProxy... If you want to update it, stop the server, delete the folder '${CHAOS_PROXY_DIR}' and start the server again..."
+    echo "Using local version of ChaosProxy"
+    echo "(If you want to update it, stop the server, delete the folder '${chaos_proxy_dir}' and start the server again)"
 fi
 
-echo "Starting ChaosProxy using the following configuration file: ${CONFIG_FILE}"
+echo "Starting ChaosProxy using the following configuration file: ${config_file}"
 
-python2 -m chaosproxy.__main__ -v -i ${CONFIG_FILE} -p ${LOG_FILE_PATH} &>/dev/null &
+python2 -m chaosproxy.__main__ -v -i ${config_file} -p ${log_file_path} &>/dev/null &
 
-echo "Log file path is: '${LOG_FILE_PATH}'"
+echo "ChaosProxy Started... Log files path is: '${log_file_path}'"
