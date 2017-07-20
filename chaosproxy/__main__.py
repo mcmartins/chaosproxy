@@ -6,7 +6,7 @@ import atexit
 import logging
 import datetime
 import traceback
-import ssl
+# import ssl
 
 import StringIO
 
@@ -22,7 +22,6 @@ def __cleanup():
 
 
 def traceback_exception_handler():
-
     def log_unhandled_exception(etype, value, tb, limit=None, file=None):
         tb_output = StringIO.StringIO()
         traceback.print_tb(tb, limit, tb_output)
@@ -75,9 +74,10 @@ if __name__ == '__main__':
     server.daemon_threads = True
     server.allow_reuse_address = True
     protocol = "http"
-    if "https" in config.get_remotehost().lower():
-        protocol = "https"
-        server.socket = ssl.wrap_socket(server.socket, certfile="cert/server.crt", keyfile="cert/server.key", server_side=True)
+    # if "https" in config.get_remotehost().lower():
+    #    protocol = "https"
+    #    server.socket = ssl.wrap_socket(server.socket, certfile="cert/server.crt", keyfile="cert/server.key",
+    #                                    server_side=True)
 
     logging.info('Listening on [%s]', protocol + '://' + ':'.join(map(str, config.get_localhost())))
     logging.info('Forwarding to [%s]', config.get_remotehost())
