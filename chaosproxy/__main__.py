@@ -6,6 +6,7 @@ import atexit
 import logging
 import datetime
 import traceback
+import ssl
 
 import StringIO
 
@@ -73,8 +74,12 @@ if __name__ == '__main__':
     server = SocketServer.ThreadingTCPServer(config.get_localhost(), ChaosProxy(config).Proxy)
     server.daemon_threads = True
     server.allow_reuse_address = True
+    protocol = "http"
+    if "https" in config.get_remotehost().lower():
+        protocol = "https"
+        server.socket = ssl.wrap_socket(server.socket, certfile="cert/server.crt", keyfile="cert/server.key", server_side=True)
 
-    logging.info('Listening on [%s]', 'http://' + ':'.join(map(str, config.get_localhost())))
+    logging.info('Listening on [%s]', protocol + '://' + ':'.join(map(str, config.get_localhost())))
     logging.info('Forwarding to [%s]', config.get_remotehost())
 
     # start server
